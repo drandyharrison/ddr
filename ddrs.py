@@ -71,7 +71,6 @@ def read_int_stdin(prompt, reminder="Try again!"):
             is_input_valid = True
     return num_rows
 
-
 # ---------------------------------------------------------------
 # Generate some random DDR data
 #   num_rows    number of rows of random data to generate
@@ -149,24 +148,31 @@ def gen_rand_ddr(num_rows, fname):
         # reset stdout
         sys.stdout = sys.__stdout__
 
+
+# ---------------------------------
+# Interface to generate random data
+# ---------------------------------
+def rand_data_ui():
+    # Read the number of rows from stdin
+    num_rows = read_int_stdin("How many rows to generate? ")
+
+    # Read name of file to generate
+    try:
+        fname = input("Name of file to generate: ")
+    except:
+        # I don't the exceptions this can throw, so list them if they occur
+        print("Unexpected error:", sys.exc_info()[0])
+        raise
+
+    gen_rand_ddr(num_rows, fname)
+
+    print("\n---------\nFinished!\n---------")
+
 # ==================
 # define main script
 # ==================
 
-# Read the number of rows from stdin
-num_rows = read_int_stdin("How many rows to generate? ")
-
-# Read name of file to generate
-try:
-    fname = input("Name of file to generate: ")
-except:
-    # I don't the exceptions this can throw, so list them if they occur
-    print("Unexpected error:", sys.exc_info()[0])
-    raise
-
-gen_rand_ddr(num_rows, fname)
-
-print("\n---------\nFinished!\n---------")
+rand_data_ui()
 
 # List the field names with index
 #for idx, val in enumerate(fields):

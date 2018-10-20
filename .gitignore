@@ -2,3 +2,5 @@
 test\.csv
 
 data_files/
+
+*.csv

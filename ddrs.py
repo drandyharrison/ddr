@@ -205,7 +205,6 @@ def cmp_csv_files(fname1, fname2):
         # only compare if both files were read successfully
         if is_valid_file:
             # compare the two CSVs
-            print("Comparing {} and {}".format(csv_fname1, csv_fname2))
             match = (csv_data1 == csv_data2)
     return match
 
@@ -250,12 +249,12 @@ is_valid_file, config_data = read_csv(config_fname, delim='|',hdr = False)  # pi
 if is_valid_file:
     # process each line in the config file
     for idx, row in enumerate(config_data):
-        csv_fname1 = row[1]
-        csv_fname2 = row[3]
+        csv_fname1 = row[0] + row[1]
+        csv_fname2 = row[2] + row[3]
         if cmp_csv_files(csv_fname1, csv_fname2):
-            print("\tCSV matches")
+            print("Match::\t\t{} | {}".format(csv_fname1, csv_fname2))
         else:
-            print("\tCSVs don't match")
+            print("No match::\t{} | {}".format(csv_fname1, csv_fname2))
 else:
     print("Invalid config file name: {}".format(config_fname))
 

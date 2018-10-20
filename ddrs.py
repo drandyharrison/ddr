@@ -1,0 +1,149 @@
+import os
+import sys
+import random
+from calendar import monthrange
+
+# check the working directory
+wd = os.getcwd()
+print("Working directory: ", wd)
+
+# define the config data
+# list of domicile groups
+domiciles = ['1.ALL', '2.UK', '3.EU', '4.OV']
+# list of fields/column headers
+fields = ['Cycle', 'Date', 'Day_of_the_week', 'Day', 'Month', 'Year', 'Domicile_Group', 'New_apps', '7-Day Moving Ave', 'Days to Deadline', 'Working Days to Deadline', 'Days Since Cycle Opened', 'Bank Holiday']
+# list of days of week
+dow = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+# current cycle
+cycle = 2018
+# days on
+# header rows
+# TODO read in rather than hard code
+header = ["\"---------------------------------------------------\"",
+            "\"UCAS Analysis and Insights - Daily Domicile Report\"",
+            "\"---------------------------------------------------\"",
+            "\"This data file should be used in conjunction with ...\"",
+            "\"File: filename\"",
+            "\"Cycle: 2018\"",
+            "\"Reporting coverage: 6 Sep 2017 - 18 Feb 18\"",
+            "\"Applicant coverage: 18 year old applicants\"",
+            "\"Analysis class: Domicile\"",
+            "\"---------------------------------------------------\"",
+            "The 'Days to Deadline' variable Lorem ipsum dolor sit amet, consectetur adipiscing elit,",
+            "The ' 7-Day Moving Average' variable sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ",
+            "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+            "Data lines are comma delimited.",
+            "Data follows - 9999 lines in total",
+            "---------------------------------------------------"]
+
+# ================
+# define functions
+# ================
+
+# -----------------------------------------------------------------------
+# Read in an integer from the stdin
+#   prompt      the prompt to use when requesting user input
+#   reminder    message when input isn't a valid integer and asking again
+# -----------------------------------------------------------------------
+def read_int_stdin(prompt, reminder="Try again!"):
+    # keep asking until correct
+    is_input_valid = False
+    while not is_input_valid:
+        try:
+            num_rows_str = input("{}".format(prompt))
+        except:
+            # I don't the exceptions this can throw, so list them if they occur
+            print("Unexpected error:", sys.exc_info()[0])
+            raise
+        # convert string to integer
+        # TODO make into a sub-function
+        try:
+            num_rows = int(num_rows_str)
+        except ValueError:
+            print("String is not a valid integer: {}".format(num_rows_str))
+            print("{}".format(reminder))
+        except:
+            # I don't the exceptions this can throw, so list them if they occur
+            print("Unexpected error (when converting string to integer):", sys.exc_info()[0])
+            raise
+        else:
+            # no exceptions thrown, so ok to proceed
+            is_input_valid = True
+    return num_rows
+
+
+# ---------------------------------
+# Generate some random DDR data
+#   num_rows    number of rows of random data to generate
+# ---------------------------------
+def gen_rand_ddr(num_rows):
+    # write header rows
+    for h in header:
+        print("{}".format(h))
+
+    # write column headers
+    lim = len(fields) - 1
+    for idx, val in enumerate(fields):
+        print("{}".format(val), end='', flush=True)
+        # add column after each field except the last one
+        if idx < lim:
+            print(",", end='', flush=True)
+    # new line
+    print("")
+
+    # generate random data
+    year = cycle - 1
+    for lp1 in range(num_rows):
+        #print("[{:03}]__".format(1 + lp1))
+        # generate a value for each field
+        month = random.randint(1, 12)
+        for f in fields:
+            if f == 'Cycle':
+                print('2018,', end='', flush=True)
+            elif f == 'Date':
+                print('06SEP2017,', end='', flush=True)
+            elif f == 'Day_of_the_week':
+                print('{},'.format(dow[random.randrange(len(dow))]), end='', flush=True)
+            elif f == 'Day':
+                day = random.randint(1, monthrange(year, month)[1])
+                print('{},'.format(day), end='', flush=True)
+            elif f == 'Month':
+                print('{},'.format(month), end='', flush=True)
+            elif f == 'Year':
+                print('{},'.format(year), end='', flush=True)
+            elif f == 'Domicile_Group':
+                print('{},'.format(domiciles[random.randrange(len(domiciles))]), end='', flush=True)
+            elif f == 'New_apps':
+                val = random.randint(1, 10000)
+                print('{},'.format(val), end='', flush=True)
+            elif f == '7-Day Moving Ave':
+                val = random.randint(1, 10000)
+                print('{},'.format(val), end='', flush=True)
+            elif f == 'Days to Deadline':
+                val = random.randint(1, 10000)
+                print('{},'.format(val), end='', flush=True)
+            elif f == 'Working Days to Deadline':
+                val = random.randint(1, 10000)
+                print('{},'.format(val), end='', flush=True)
+            elif f == 'Days Since Cycle Opened':
+                val = random.randint(1, 10000)
+                print('{},'.format(val), end='', flush=True)
+            elif f == 'Bank Holiday':
+                print('{}'.format(random.randint(0,1)), end='', flush=True)
+        print('')   # clear to next line
+
+# ==================
+# define main script
+# ==================
+
+# Read the number of rows from stdin
+num_rows = read_int_stdin("How many rows to generate? ")
+print("Number of rows to generate: {:d}".format(num_rows))
+
+gen_rand_ddr(num_rows)
+
+# List the field names with index
+#for idx, val in enumerate(fields):
+#    print("\t[{:02d}]: {}".format(idx, val))

@@ -2,6 +2,7 @@ import os
 import sys
 import random
 from calendar import monthrange
+import datetime
 
 # check the working directory
 wd = os.getcwd()
@@ -12,8 +13,6 @@ print("Working directory: ", wd)
 domiciles = ['1.ALL', '2.UK', '3.EU', '4.OV']
 # list of fields/column headers
 fields = ['Cycle', 'Date', 'Day_of_the_week', 'Day', 'Month', 'Year', 'Domicile_Group', 'New_apps', '7-Day Moving Ave', 'Days to Deadline', 'Working Days to Deadline', 'Days Since Cycle Opened', 'Bank Holiday']
-# list of days of week
-dow = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 # current cycle
 cycle = 2018
 # header rows
@@ -103,18 +102,20 @@ def gen_rand_ddr(num_rows, fname):
             # new line
             print("")
             for lp1 in range(num_rows):
-                #print("[{:03}]__".format(1 + lp1))
                 # generate a value for each field
                 month = random.randint(1, 12)
+                day = random.randint(1, monthrange(year, month)[1])
+                date = datetime.date(year, month, day)
+                month_name = date.strftime('%b')        # Get the three letter name for the month
+                dow = date.strftime("%A")               # Get day of week name
                 for f in fields:
                     if f == 'Cycle':
                         print('2018,', end='', flush=True)
                     elif f == 'Date':
-                        print('06SEP2017,', end='', flush=True)
+                        print('{:02d}{}{},'.format(day, month_name, year), end='', flush=True)
                     elif f == 'Day_of_the_week':
-                        print('{},'.format(dow[random.randrange(len(dow))]), end='', flush=True)
+                        print('{},'.format(dow), end='', flush=True)
                     elif f == 'Day':
-                        day = random.randint(1, monthrange(year, month)[1])
                         print('{},'.format(day), end='', flush=True)
                     elif f == 'Month':
                         print('{},'.format(month), end='', flush=True)

@@ -155,25 +155,28 @@ def gen_rand_ddr(num_rows, fname):
 #   skip_rows   number of initial rows to skip until reach the column headers
 #   hdr         boolean flag to indicate whether there are column headers of go straight to data
 def read_csv(fname, delim=',', skip_rows=0, hdr=True):
-    # check file exists (assumes it's in the working directory)
+    csv_data = []
     try:
         with open(fname) as f:
             # read csv
-            csv_data = csv.reader(f, delimiter=delim)
-            for idx, row in enumerate(csv_data):
+            csv_contents = csv.reader(f, delimiter=delim)
+            for idx, row in enumerate(csv_contents):
                 if hdr and idx == skip_rows:
                     print("Headers::{}".format(row))
                 elif hdr and idx > skip_rows:
                     print("[{:03d}] {}".format(idx, row))
+                    csv_data.append(row)
                 elif (not hdr) and idx == skip_rows:
                     print("[{:03d}] {}".format(idx, row))
+                    csv_data.append(row)
     except IOError as e:
+        # check file exists (assumes it's in the working directory)
         print("Unable to open file: {}".format(fname))  # either doesn't exist or no read permissions
         print("I/O error({0}): {1}".format(e.errno, e.strerror))
         is_valid_file = False
     else:
         is_valid_file = True
-    return is_valid_file
+    return is_valid_file, csv_data
 
 
 # ---------------------------------
@@ -201,7 +204,11 @@ def rand_data_ui():
 
 is_valid_file = False
 while not is_valid_file:
-    fname = input("Name of file to read? ")
-    is_valid_file = read_csv(fname, skip_rows=18)
+    fname = input("Name of the first file to read? ")
+    is_valid_file, csv_data1 = read_csv(fname, skip_rows=18)
+
+print("CSV data")
+for idx, elt in enumerate(csv_data1):
+    print("\t[{:03d}]{}".format(idx, elt))
 
 print("\n---------\nFinished!\n---------")

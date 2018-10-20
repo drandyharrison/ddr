@@ -173,7 +173,7 @@ def read_csv(fname, delim=',', skip_rows=0, hdr=True):
                 if hdr and idx == skip_rows:
                     pass
                     #print("Headers::{}".format(row))
-                elif hdr and idx > skip_rows:
+                elif idx > skip_rows:
                     #print("[{:03d}] {}".format(idx, row))
                     csv_data.append(row)
                 elif (not hdr) and idx == skip_rows:
@@ -243,11 +243,27 @@ def rand_data_ui():
 #    fname = input("Name of the second file to read? ")
 #    is_valid_file, csv_data2 = read_csv(fname, skip_rows=18)
 
-csv_fname1 = "ddrs_18yo.csv"
-csv_fname2 = "ddrs_18yo.csv"
-if cmp_csv_files(csv_fname1, csv_fname2):
-    print("CSV matches")
+# read list of csv files to compare
+config_fname = 'ddr_config.txt'                                             # name of file with list of csv files to compare
+is_valid_file, config_data = read_csv(config_fname, delim='|',hdr = False)  # pipe-delimited
+
+if is_valid_file:
+    # process each line in the config file
+    for idx, row in enumerate(config_data):
+        csv_fname1 = row[1]
+        csv_fname2 = row[3]
+        if cmp_csv_files(csv_fname1, csv_fname2):
+            print("\tCSV matches")
+        else:
+            print("\tCSVs don't match")
 else:
-    print("CSVs don't match")
+    print("Invalid config file name: {}".format(config_fname))
+
+#csv_fname1 = "ddrs_18yo.csv"
+#csv_fname2 = "ddrs_18yo.csv"
+#if cmp_csv_files(csv_fname1, csv_fname2):
+#    print("CSV matches")
+#else:
+#    print("CSVs don't match")
 
 print("\n---------\nFinished!\n---------")

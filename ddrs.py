@@ -162,12 +162,13 @@ def read_csv(fname, delim=',', skip_rows=0, hdr=True):
             csv_contents = csv.reader(f, delimiter=delim)
             for idx, row in enumerate(csv_contents):
                 if hdr and idx == skip_rows:
-                    print("Headers::{}".format(row))
+                    pass
+                    #print("Headers::{}".format(row))
                 elif hdr and idx > skip_rows:
-                    print("[{:03d}] {}".format(idx, row))
+                    #print("[{:03d}] {}".format(idx, row))
                     csv_data.append(row)
                 elif (not hdr) and idx == skip_rows:
-                    print("[{:03d}] {}".format(idx, row))
+                    #print("[{:03d}] {}".format(idx, row))
                     csv_data.append(row)
     except IOError as e:
         # check file exists (assumes it's in the working directory)
@@ -202,13 +203,21 @@ def rand_data_ui():
 
 #rand_data_ui()
 
+# read first CSV
 is_valid_file = False
 while not is_valid_file:
     fname = input("Name of the first file to read? ")
     is_valid_file, csv_data1 = read_csv(fname, skip_rows=18)
+# read second CSV
+is_valid_file = False
+while not is_valid_file:
+    fname = input("Name of the second file to read? ")
+    is_valid_file, csv_data2 = read_csv(fname, skip_rows=18)
 
-print("CSV data")
-for idx, elt in enumerate(csv_data1):
-    print("\t[{:03d}]{}".format(idx, elt))
+# compare the two CSVs
+if csv_data1 == csv_data2:
+    print("CSV matches")
+else:
+    print("CSVs don't match")
 
 print("\n---------\nFinished!\n---------")

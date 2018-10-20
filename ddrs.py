@@ -45,6 +45,9 @@ header = ["\"---------------------------------------------------\"",
 # Read in an integer from the stdin
 #   prompt      the prompt to use when requesting user input
 #   reminder    message when input isn't a valid integer and asking again
+#
+# return
+#   the number entered at stdin as an integer
 # -----------------------------------------------------------------------
 def read_int_stdin(prompt, reminder="Try again!"):
     # keep asking until correct
@@ -149,11 +152,17 @@ def gen_rand_ddr(num_rows, fname):
         # reset stdout
         sys.stdout = sys.__stdout__
 
+# -----------------------------------------------------------------------------------------------
 # Read in a csv file
 #   fname       name of the csv file to read
 #   delim       delimiter
 #   skip_rows   number of initial rows to skip until reach the column headers
 #   hdr         boolean flag to indicate whether there are column headers of go straight to data
+#
+# return
+#   is_valid_file   True iff file exists and is readable
+#   csv_data        Data in the CSV file
+# -----------------------------------------------------------------------------------------------
 def read_csv(fname, delim=',', skip_rows=0, hdr=True):
     csv_data = []
     try:
@@ -179,6 +188,26 @@ def read_csv(fname, delim=',', skip_rows=0, hdr=True):
         is_valid_file = True
     return is_valid_file, csv_data
 
+# --------------------------------------------------
+# Compare two csv files
+#   fname1  Name of the first CSV file
+#   fname2  Name of the second CSV file
+#
+#   return True iff data in files are an exact match
+# --------------------------------------------------
+def cmp_csv_files(fname1, fname2):
+    match = False
+    # read CSVs
+    is_valid_file, csv_data1 = read_csv(csv_fname1, skip_rows=18)
+    # only read second file second file if first was read successfully
+    if is_valid_file:
+        is_valid_file, csv_data2 = read_csv(csv_fname2, skip_rows=18)
+        # only compare if both files were read successfully
+        if is_valid_file:
+            # compare the two CSVs
+            print("Comparing {} and {}".format(csv_fname1, csv_fname2))
+            match = (csv_data1 == csv_data2)
+    return match
 
 # ---------------------------------
 # Interface to generate random data
@@ -204,18 +233,19 @@ def rand_data_ui():
 #rand_data_ui()
 
 # read first CSV
-is_valid_file = False
-while not is_valid_file:
-    fname = input("Name of the first file to read? ")
-    is_valid_file, csv_data1 = read_csv(fname, skip_rows=18)
-# read second CSV
-is_valid_file = False
-while not is_valid_file:
-    fname = input("Name of the second file to read? ")
-    is_valid_file, csv_data2 = read_csv(fname, skip_rows=18)
+#is_valid_file = False
+#while not is_valid_file:
+#    fname = input("Name of the first file to read? ")
+#    is_valid_file, csv_data1 = read_csv(fname, skip_rows=18)
+## read second CSV
+#is_valid_file = False
+#while not is_valid_file:
+#    fname = input("Name of the second file to read? ")
+#    is_valid_file, csv_data2 = read_csv(fname, skip_rows=18)
 
-# compare the two CSVs
-if csv_data1 == csv_data2:
+csv_fname1 = "ddrs_18yo.csv"
+csv_fname2 = "ddrs_18yo.csv"
+if cmp_csv_files(csv_fname1, csv_fname2):
     print("CSV matches")
 else:
     print("CSVs don't match")

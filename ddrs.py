@@ -9,7 +9,11 @@ import csv
 wd = os.getcwd()
 print("Working directory: ", wd)
 
+# ----------------------
 # define the config data
+# ----------------------
+# log file name
+log_fname = 'ddrs.log'
 # list of domicile groups
 domiciles = ['1.ALL', '2.UK', '3.EU', '4.OV']
 # list of fields/column headers
@@ -160,7 +164,7 @@ def gen_rand_ddr(num_rows, fname):
 #   hdr         boolean flag to indicate whether there are column headers of go straight to data
 #
 # return
-#   is_valid_file   True iff file exists and is readable
+#   is_file_valid   True iff file exists and is readable
 #   csv_data        Data in the CSV file
 # -----------------------------------------------------------------------------------------------
 def read_csv(fname, delim=',', skip_rows=0, hdr=True):
@@ -183,10 +187,10 @@ def read_csv(fname, delim=',', skip_rows=0, hdr=True):
         # check file exists (assumes it's in the working directory)
         print("Unable to open file: {}".format(fname))  # either doesn't exist or no read permissions
         print("I/O error({0}): {1}".format(e.errno, e.strerror))
-        is_valid_file = False
+        is_file_valid = False
     else:
-        is_valid_file = True
-    return is_valid_file, csv_data
+        is_file_valid = True
+    return is_file_valid, csv_data
 
 # --------------------------------------------------
 # Compare two csv files
@@ -198,15 +202,16 @@ def read_csv(fname, delim=',', skip_rows=0, hdr=True):
 def cmp_csv_files(fname1, fname2):
     match = False
     # read CSVs
-    is_valid_file, csv_data1 = read_csv(csv_fname1, skip_rows=18)
+    is_file_valid, csv_data1 = read_csv(csv_fname1, skip_rows=18)
     # only read second file second file if first was read successfully
-    if is_valid_file:
-        is_valid_file, csv_data2 = read_csv(csv_fname2, skip_rows=18)
+    if is_file_valid:
+        is_file_valid, csv_data2 = read_csv(csv_fname2, skip_rows=18)
         # only compare if both files were read successfully
-        if is_valid_file:
+        if is_file_valid:
             # compare the two CSVs
             match = (csv_data1 == csv_data2)
-    return match
+    return is_file_valid, match
+
 
 # ---------------------------------
 # Interface to generate random data
@@ -231,38 +236,35 @@ def rand_data_ui():
 
 #rand_data_ui()
 
-# read first CSV
-#is_valid_file = False
-#while not is_valid_file:
-#    fname = input("Name of the first file to read? ")
-#    is_valid_file, csv_data1 = read_csv(fname, skip_rows=18)
-## read second CSV
-#is_valid_file = False
-#while not is_valid_file:
-#    fname = input("Name of the second file to read? ")
-#    is_valid_file, csv_data2 = read_csv(fname, skip_rows=18)
-
 # read list of csv files to compare
 config_fname = 'ddr_config.txt'                                             # name of file with list of csv files to compare
-is_valid_file, config_data = read_csv(config_fname, delim='|',hdr = False)  # pipe-delimited
+is_file_valid, config_data = read_csv(config_fname, delim='|',hdr = False)  # pipe-delimited
 
-if is_valid_file:
+if is_file_valid:
     # process each line in the config file
     for idx, row in enumerate(config_data):
         csv_fname1 = row[0] + row[1]
         csv_fname2 = row[2] + row[3]
-        if cmp_csv_files(csv_fname1, csv_fname2):
-            print("Match::\t\t{} | {}".format(csv_fname1, csv_fname2))
+        print("[{:02d}] Comparing {} and {}".format(idx, csv_fname1, csv_fname2))
+        is_file_valid, match = cmp_csv_files(csv_fname1, csv_fname2)
+        if is_file_valid:
+            try:
+                # write to log file
+                with open(log_fname, "a") as flog:
+                    now = datetime.datetime.now()
+                    month_name = now.strftime('%b')
+                    datestamp = "[{:4d}-{}-{:2d} {:02d}:{:02d}:{:02d}]".format(now.year, month_name, now.day, now.hour, now.minute, now.second)
+                    if match:
+                        flog.write("[{}]Match::\t\t{} | {}\n".format(datestamp, csv_fname1, csv_fname2))
+                    else:
+                        flog.write("[{}]No match::\t{} | {}\n".format(datestamp, csv_fname1, csv_fname2))
+            except:
+                # I don't the exceptions this can throw, so list them if they occur
+                print("Unexpected error:", sys.exc_info()[0])
+                raise
         else:
-            print("No match::\t{} | {}".format(csv_fname1, csv_fname2))
+            print("At least one file is invalid::\t{} | {}".format(csv_fname1, csv_fname2))
 else:
     print("Invalid config file name: {}".format(config_fname))
-
-#csv_fname1 = "ddrs_18yo.csv"
-#csv_fname2 = "ddrs_18yo.csv"
-#if cmp_csv_files(csv_fname1, csv_fname2):
-#    print("CSV matches")
-#else:
-#    print("CSVs don't match")
 
 print("\n---------\nFinished!\n---------")

@@ -3,6 +3,7 @@ import sys
 import random
 from calendar import monthrange
 import datetime
+import csv
 
 # check the working directory
 wd = os.getcwd()
@@ -148,6 +149,32 @@ def gen_rand_ddr(num_rows, fname):
         # reset stdout
         sys.stdout = sys.__stdout__
 
+# Read in a csv file
+#   fname       name of the csv file to read
+#   delim       delimiter
+#   skip_rows   number of initial rows to skip until reach the column headers
+#   hdr         boolean flag to indicate whether there are column headers of go straight to data
+def read_csv(fname, delim=',', skip_rows=0, hdr=True):
+    # check file exists (assumes it's in the working directory)
+    try:
+        with open(fname) as f:
+            # read csv
+            csv_data = csv.reader(f, delimiter=delim)
+            for idx, row in enumerate(csv_data):
+                if hdr and idx == skip_rows:
+                    print("Headers::{}".format(row))
+                elif hdr and idx > skip_rows:
+                    print("[{:03d}] {}".format(idx, row))
+                elif (not hdr) and idx == skip_rows:
+                    print("[{:03d}] {}".format(idx, row))
+    except IOError as e:
+        print("Unable to open file: {}".format(fname))  # either doesn't exist or no read permissions
+        print("I/O error({0}): {1}".format(e.errno, e.strerror))
+        is_valid_file = False
+    else:
+        is_valid_file = True
+    return is_valid_file
+
 
 # ---------------------------------
 # Interface to generate random data
@@ -166,14 +193,15 @@ def rand_data_ui():
 
     gen_rand_ddr(num_rows, fname)
 
-    print("\n---------\nFinished!\n---------")
-
 # ==================
 # define main script
 # ==================
 
-rand_data_ui()
+#rand_data_ui()
 
-# List the field names with index
-#for idx, val in enumerate(fields):
-#    print("\t[{:02d}]: {}".format(idx, val))
+is_valid_file = False
+while not is_valid_file:
+    fname = input("Name of file to read? ")
+    is_valid_file = read_csv(fname, skip_rows=18)
+
+print("\n---------\nFinished!\n---------")

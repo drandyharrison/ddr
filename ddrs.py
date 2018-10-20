@@ -16,7 +16,6 @@ fields = ['Cycle', 'Date', 'Day_of_the_week', 'Day', 'Month', 'Year', 'Domicile_
 dow = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 # current cycle
 cycle = 2018
-# days on
 # header rows
 # TODO read in rather than hard code
 header = ["\"---------------------------------------------------\"",
@@ -74,65 +73,80 @@ def read_int_stdin(prompt, reminder="Try again!"):
     return num_rows
 
 
-# ---------------------------------
+# ---------------------------------------------------------------
 # Generate some random DDR data
 #   num_rows    number of rows of random data to generate
-# ---------------------------------
-def gen_rand_ddr(num_rows):
-    # write header rows
-    for h in header:
-        print("{}".format(h))
-
-    # write column headers
-    lim = len(fields) - 1
-    for idx, val in enumerate(fields):
-        print("{}".format(val), end='', flush=True)
-        # add column after each field except the last one
-        if idx < lim:
-            print(",", end='', flush=True)
-    # new line
-    print("")
+#   fname       the name of the file to write the random data to
+# --------------------------------------------------------------
+def gen_rand_ddr(num_rows, fname):
+    # append .csv suffix to filename
+    fname = fname + '.csv'
+    print('Generate {}'.format(fname))
 
     # generate random data
     year = cycle - 1
-    for lp1 in range(num_rows):
-        #print("[{:03}]__".format(1 + lp1))
-        # generate a value for each field
-        month = random.randint(1, 12)
-        for f in fields:
-            if f == 'Cycle':
-                print('2018,', end='', flush=True)
-            elif f == 'Date':
-                print('06SEP2017,', end='', flush=True)
-            elif f == 'Day_of_the_week':
-                print('{},'.format(dow[random.randrange(len(dow))]), end='', flush=True)
-            elif f == 'Day':
-                day = random.randint(1, monthrange(year, month)[1])
-                print('{},'.format(day), end='', flush=True)
-            elif f == 'Month':
-                print('{},'.format(month), end='', flush=True)
-            elif f == 'Year':
-                print('{},'.format(year), end='', flush=True)
-            elif f == 'Domicile_Group':
-                print('{},'.format(domiciles[random.randrange(len(domiciles))]), end='', flush=True)
-            elif f == 'New_apps':
-                val = random.randint(1, 10000)
-                print('{},'.format(val), end='', flush=True)
-            elif f == '7-Day Moving Ave':
-                val = random.randint(1, 10000)
-                print('{},'.format(val), end='', flush=True)
-            elif f == 'Days to Deadline':
-                val = random.randint(1, 10000)
-                print('{},'.format(val), end='', flush=True)
-            elif f == 'Working Days to Deadline':
-                val = random.randint(1, 10000)
-                print('{},'.format(val), end='', flush=True)
-            elif f == 'Days Since Cycle Opened':
-                val = random.randint(1, 10000)
-                print('{},'.format(val), end='', flush=True)
-            elif f == 'Bank Holiday':
-                print('{}'.format(random.randint(0,1)), end='', flush=True)
-        print('')   # clear to next line
+    try:
+        # write the data to the named file
+        with open(fname, "w") as f:
+            sys.stdout = f
+            # write header rows
+            for h in header:
+                print("{}".format(h))
+
+            # write column headers
+            lim = len(fields) - 1
+            for idx, val in enumerate(fields):
+                print("{}".format(val), end='', flush=True)
+                # add column after each field except the last one
+                if idx < lim:
+                    print(",", end='', flush=True)
+            # new line
+            print("")
+            for lp1 in range(num_rows):
+                #print("[{:03}]__".format(1 + lp1))
+                # generate a value for each field
+                month = random.randint(1, 12)
+                for f in fields:
+                    if f == 'Cycle':
+                        print('2018,', end='', flush=True)
+                    elif f == 'Date':
+                        print('06SEP2017,', end='', flush=True)
+                    elif f == 'Day_of_the_week':
+                        print('{},'.format(dow[random.randrange(len(dow))]), end='', flush=True)
+                    elif f == 'Day':
+                        day = random.randint(1, monthrange(year, month)[1])
+                        print('{},'.format(day), end='', flush=True)
+                    elif f == 'Month':
+                        print('{},'.format(month), end='', flush=True)
+                    elif f == 'Year':
+                        print('{},'.format(year), end='', flush=True)
+                    elif f == 'Domicile_Group':
+                        print('{},'.format(domiciles[random.randrange(len(domiciles))]), end='', flush=True)
+                    elif f == 'New_apps':
+                        val = random.randint(1, 10000)
+                        print('{},'.format(val), end='', flush=True)
+                    elif f == '7-Day Moving Ave':
+                        val = random.randint(1, 10000)
+                        print('{},'.format(val), end='', flush=True)
+                    elif f == 'Days to Deadline':
+                        val = random.randint(1, 10000)
+                        print('{},'.format(val), end='', flush=True)
+                    elif f == 'Working Days to Deadline':
+                        val = random.randint(1, 10000)
+                        print('{},'.format(val), end='', flush=True)
+                    elif f == 'Days Since Cycle Opened':
+                        val = random.randint(1, 10000)
+                        print('{},'.format(val), end='', flush=True)
+                    elif f == 'Bank Holiday':
+                        print('{}'.format(random.randint(0,1)), end='', flush=True)
+                print('')   # clear to next line
+    except IOError as e:
+        print("I/O error({0}): {1}".format(e.errno, e.strerror))
+    except: # handle other exceptions
+        print("Unexpected error:", sys.exc_info()[0])
+    finally:
+        # reset stdout
+        sys.stdout = sys.__stdout__
 
 # ==================
 # define main script
@@ -140,9 +154,18 @@ def gen_rand_ddr(num_rows):
 
 # Read the number of rows from stdin
 num_rows = read_int_stdin("How many rows to generate? ")
-print("Number of rows to generate: {:d}".format(num_rows))
 
-gen_rand_ddr(num_rows)
+# Read name of file to generate
+try:
+    fname = input("Name of file to generate: ")
+except:
+    # I don't the exceptions this can throw, so list them if they occur
+    print("Unexpected error:", sys.exc_info()[0])
+    raise
+
+gen_rand_ddr(num_rows, fname)
+
+print("\n---------\nFinished!\n---------")
 
 # List the field names with index
 #for idx, val in enumerate(fields):

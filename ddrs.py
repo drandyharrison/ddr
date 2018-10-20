@@ -240,6 +240,8 @@ def rand_data_ui():
 config_fname = 'ddr_config.txt'                                             # name of file with list of csv files to compare
 is_file_valid, config_data = read_csv(config_fname, delim='|',hdr = False)  # pipe-delimited
 
+# Execute a command line command - placeholder for executing SAS from the command line
+os.system('ls -al')
 if is_file_valid:
     # process each line in the config file
     for idx, row in enumerate(config_data):

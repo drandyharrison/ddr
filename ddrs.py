@@ -4,6 +4,7 @@ import random
 from calendar import monthrange
 import datetime
 import csv
+import filecmp
 
 # check the working directory
 wd = os.getcwd()
@@ -276,40 +277,50 @@ if is_file_valid:
         csv_fname1 = row[0] + row[1]
         csv_fname2 = row[2] + row[3]
         print("[{:02d}] Comparing {} and {}".format(idx, csv_fname1, csv_fname2))
-        is_file_valid, match = cmp_csv_files(csv_fname1, csv_fname2)
-        if is_file_valid:
+#        is_file_valid, match = cmp_csv_files(csv_fname1, csv_fname2)
+#        if is_file_valid:
+        try:
+            match = filecmp.cmp(csv_fname1, csv_fname2, False)
+        except FileNotFoundError as e:
+            print("At least one of the files is not found: {} | {}".format(csv_fname1, csv_fname2))
+            print("FileNotFoundError({0}): {1}".format(e.errno, e.strerror))
+        except IsADirectoryError as e:
+            print("At least one of the files is a directory not a file: {} | {}".format(csv_fname1, csv_fname2))
+            print("IsADirectoryError({0}): {1}".format(e.errno, e.strerror))
+        else:
+            # TODO I should probably add a try statement to wrap up the queries to date and its processing
+            now = datetime.datetime.now()
+            month_name = now.strftime('%b')
+            datestamp = "[{:4d}-{}-{:2d} {:02d}:{:02d}:{:02d}]".format(now.year, month_name, now.day, now.hour, now.minute, now.second)
             try:
-                # write to log file
+                # write datestamped outcome to the log file
                 with open(log_fname, "a") as flog:
-                    now = datetime.datetime.now()
-                    month_name = now.strftime('%b')
-                    datestamp = "[{:4d}-{}-{:2d} {:02d}:{:02d}:{:02d}]".format(now.year, month_name, now.day, now.hour, now.minute, now.second)
                     if match:
                         flog.write("[{}]Match::\t\t{} | {}\n".format(datestamp, csv_fname1, csv_fname2))
                     else:
                         flog.write("[{}]No match::\t{} | {}\n".format(datestamp, csv_fname1, csv_fname2))
             except EOFError as e:
-                print("Hit EOF without reading any data: {}".format(fname))
+                print("Hit EOF without reading any data: {}".format(log_fname))
                 print("EOFError({0}): {1}".format(e.errno, e.strerror))
                 is_file_valid = False
             except FileNotFoundError as e:
-                print("File not found: {}".format(fname))
+                print("File not found: {}".format(log_fname))
                 print("FileNotFoundError({0}): {1}".format(e.errno, e.strerror))
                 is_file_valid = False
             except IsADirectoryError as e:
-                print("Is a directory not a file: {}".format(fname))
+                print("Is a directory not a file: {}".format(log_fname))
                 print("IsADirectoryError({0}): {1}".format(e.errno, e.strerror))
                 is_file_valid = False
             except PermissionError as e:
-                print("Invalid permissions: {}".format(fname))
+                print("Invalid permissions: {}".format(log_fname))
                 print("PermissionError({0}): {1}".format(e.errno, e.strerror))
                 is_file_valid = False
             except:
                 # I don't the exceptions this can throw, so list them if they occur
                 print("Unexpected error:", sys.exc_info()[0])
                 raise
-        else:
-            print("At least one file is invalid::\t{} | {}".format(csv_fname1, csv_fname2))
+#        else:
+#            print("At least one file is invalid::\t{} | {}".format(csv_fname1, csv_fname2))
 else:
     print("Invalid config file name: {}".format(config_fname))
 

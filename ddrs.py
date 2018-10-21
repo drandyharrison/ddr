@@ -70,6 +70,9 @@ def read_int_stdin(prompt, reminder="Try again!"):
         except ValueError:
             print("String is not a valid integer: {}".format(num_rows_str))
             print("{}".format(reminder))
+        except TypeError:
+            print("Argument is not a string: {}".format(num_rows_str))
+            print("{}".format(reminder))
         except:
             # I don't the exceptions this can throw, so list them if they occur
             print("Unexpected error (when converting string to integer):", sys.exc_info()[0])
@@ -148,8 +151,18 @@ def gen_rand_ddr(num_rows, fname):
                     elif f == 'Bank Holiday':
                         print('{}'.format(random.randint(0,1)), end='', flush=True)
                 print('')   # clear to next line
-    except IOError as e:
-        print("I/O error({0}): {1}".format(e.errno, e.strerror))
+    except EOFError as e:
+        print("Hit EOF without reading any data: {}".format(fname))
+        print("EOFError({0}): {1}".format(e.errno, e.strerror))
+    except FileNotFoundError as e:
+        print("File not found: {}".format(fname))
+        print("FileNotFoundError({0}): {1}".format(e.errno, e.strerror))
+    except IsADirectoryError as e:
+        print("Is a directory not a file: {}".format(fname))
+        print("IsADirectoryError({0}): {1}".format(e.errno, e.strerror))
+    except PermissionError as e:
+        print("Invalid permissions: {}".format(fname))
+        print("PermissionError({0}): {1}".format(e.errno, e.strerror))
     except: # handle other exceptions
         print("Unexpected error:", sys.exc_info()[0])
     finally:
@@ -183,11 +196,26 @@ def read_csv(fname, delim=',', skip_rows=0, hdr=True):
                 elif (not hdr) and idx == skip_rows:
                     #print("[{:03d}] {}".format(idx, row))
                     csv_data.append(row)
-    except IOError as e:
-        # check file exists (assumes it's in the working directory)
-        print("Unable to open file: {}".format(fname))  # either doesn't exist or no read permissions
-        print("I/O error({0}): {1}".format(e.errno, e.strerror))
+    except EOFError as e:
+        print("Hit EOF without reading any data: {}".format(fname))
+        print("EOFError({0}): {1}".format(e.errno, e.strerror))
         is_file_valid = False
+    except FileNotFoundError as e:
+        print("File not found: {}".format(fname))
+        print("FileNotFoundError({0}): {1}".format(e.errno, e.strerror))
+        is_file_valid = False
+    except IsADirectoryError as e:
+        print("Is a directory not a file: {}".format(fname))
+        print("IsADirectoryError({0}): {1}".format(e.errno, e.strerror))
+        is_file_valid = False
+    except PermissionError as e:
+        print("Invalid permissions: {}".format(fname))
+        print("PermissionError({0}): {1}".format(e.errno, e.strerror))
+        is_file_valid = False
+    except:
+        # I don't the exceptions this can throw, so list them if they occur
+        print("Unexpected error:", sys.exc_info()[0])
+        raise
     else:
         is_file_valid = True
     return is_file_valid, csv_data
@@ -260,6 +288,22 @@ if is_file_valid:
                         flog.write("[{}]Match::\t\t{} | {}\n".format(datestamp, csv_fname1, csv_fname2))
                     else:
                         flog.write("[{}]No match::\t{} | {}\n".format(datestamp, csv_fname1, csv_fname2))
+            except EOFError as e:
+                print("Hit EOF without reading any data: {}".format(fname))
+                print("EOFError({0}): {1}".format(e.errno, e.strerror))
+                is_file_valid = False
+            except FileNotFoundError as e:
+                print("File not found: {}".format(fname))
+                print("FileNotFoundError({0}): {1}".format(e.errno, e.strerror))
+                is_file_valid = False
+            except IsADirectoryError as e:
+                print("Is a directory not a file: {}".format(fname))
+                print("IsADirectoryError({0}): {1}".format(e.errno, e.strerror))
+                is_file_valid = False
+            except PermissionError as e:
+                print("Invalid permissions: {}".format(fname))
+                print("PermissionError({0}): {1}".format(e.errno, e.strerror))
+                is_file_valid = False
             except:
                 # I don't the exceptions this can throw, so list them if they occur
                 print("Unexpected error:", sys.exc_info()[0])
